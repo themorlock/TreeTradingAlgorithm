@@ -12,152 +12,16 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <thread>
+#include <cstdlib>
+#include <iomanip>
+#include <sstream>
+
+#include "node.hpp"
+#include "tree.hpp"
+#include "organism.hpp"
 
 using namespace std;
-
-class node {
-public:
-    static void setType(node &n, unsigned type) {
-		n.type = type % 11 + 1;
-        node::setVariation(n, n.variation);
-    }
-    static void setVariation(node &n, unsigned variation) {
-        if(n.type <= 1)
-            n.variation = variation;
-        else
-            n.variation = variation % 2;
-    }
-private:
-    unsigned type;
-    unsigned variation;
-    double value;
-    size_t parents[2];
-    friend class tree;
-	friend class organism;
-	friend class world;
-	
-	friend class tester;
-};
-
-class tree {
-public:
-    tree(size_t inputs) : inputs(inputs), nodes((inputs * (inputs + 1)) / 2) {
-        for(size_t i = 0; i < nodes.size(); ++i) {
-            node::setType(nodes[i], rand());
-            node::setVariation(nodes[i], rand());
-            nodes[i].parents[0] = i - (size_t) ceil((-1 + sqrt(1 + 8 * (i + 1))) / 2);
-            nodes[i].parents[1] = i - 1;
-        }
-        for(size_t input_num = 0; input_num < inputs; ++input_num) {
-            nodes[(input_num * (input_num + 1)) / 2].type = 0;
-        }
-    };
-	void set_input(size_t input_num, double value) {
-		nodes[(input_num * (input_num + 1)) / 2].value = value;
-	}
-    double out() {
-        for(auto &node : nodes) {
-            node.value = tree::combine_inputs(node, nodes);
-        }
-        return nodes.back().value;
-    }
-private:
-    static double combine_inputs(const node &n, const vector<node> &nodes) {
-        double temp;
-        switch(n.type) {
-            case 0: //Input
-                return n.value;
-                break;
-            case 1: // CONSTANT
-                return n.variation;
-                break;
-            case 2: //COSINE
-                return cos(nodes[n.parents[n.variation]].value);
-                break;
-            case 3: //SINE
-                return sin(nodes[n.parents[n.variation]].value);
-                break;
-            case 4: //TANGENT
-                return tan(nodes[n.parents[n.variation]].value);
-                break;
-            case 5: //e^x
-                return exp(nodes[n.parents[n.variation]].value);
-                break;
-            case 6: //NATURAL LOG
-                temp = nodes[n.parents[n.variation]].value;
-                if(temp > 0)
-                    return log(temp);
-                return temp;
-                break;
-            case 7: //ADD
-                return nodes[n.parents[n.variation]].value + nodes[n.parents[n.variation ^ 1]].value;
-                break;
-            case 8: //SUBTRACT
-                return nodes[n.parents[n.variation]].value - nodes[n.parents[n.variation ^ 1]].value;
-                break;
-            case 9: //MULTIPLY
-                return nodes[n.parents[n.variation]].value * nodes[n.parents[n.variation ^ 1]].value;
-                break;
-            case 10: //DIVIDE
-                temp = nodes[n.parents[n.variation ^ 1]].value;
-                if(temp != 0)
-                    return nodes[n.parents[n.variation]].value / nodes[n.parents[n.variation ^ 1]].value;
-                return nodes[n.parents[n.variation]].value;
-                break;
-            case 11: //EXPONENTIATE
-                return pow(nodes[n.parents[n.variation]].value, nodes[n.parents[n.variation ^ 1]].value);
-                break;
-        }
-        return -1;
-    }
-    size_t inputs;
-    vector<node> nodes;
-	friend class organism;
-	friend class world;
-	
-	friend class tester;
-};
-
-class organism {
-public:
-	organism(size_t inputs, size_t id) : t(inputs), id(id) {}
-	void set_inputs(const vector<double> &inputs) {
-		for(size_t input_num = 0; input_num < t.inputs; ++input_num) {
-			t.set_input(input_num, inputs[input_num % inputs.size()]);
-		}
-	}
-	double get_output() {
-		return t.out();
-	}
-	vector<unsigned>& get_node_types() {
-		vector<unsigned> *node_types = new vector<unsigned>(t.nodes.size());
-		for(size_t i = 0; i < node_types->size(); ++i) {
-			(*node_types)[i] = t.nodes[i].type;
-		}
-		return *node_types;
-	}
-	vector<unsigned>& get_node_variations() {
-		vector<unsigned> *node_variations = new vector<unsigned>(t.nodes.size());
-		for(size_t i = 0; i < node_variations->size(); ++i) {
-			(*node_variations)[i] = t.nodes[i].variation;
-		}
-		return *node_variations;
-	}
-	vector<double>& get_node_values() {
-		vector<double> *node_values = new vector<double>(t.nodes.size());
-		for(size_t i = 0; i < node_values->size(); ++i) {
-			(*node_values)[i] = t.nodes[i].value;
-		}
-		return *node_values;
-	}
-	size_t id;
-	double fitness;
-private:
-	tree t;
-	friend class world;
-	
-	friend class tester;
-};
 
 struct tester {
 	virtual void test(organism &o) =0;
@@ -255,14 +119,35 @@ struct rsi_purchase_tester : public tester {
 
 class world {
 public:
-	world(size_t population_size, size_t inputs, double elite_percentile, double survival_percentile, double mutation_percentage, double mutation_rate, tester *t) : elite_percentile(elite_percentile), survival_percentile(survival_percentile), mutation_percentage(mutation_percentage), mutation_rate(mutation_rate), t(t) {
+	world(size_t population_size, size_t inputs, double elite_percentile, double survival_percentile, double mutation_percentage, double mutation_rate, unsigned threads, tester *t) : elite_percentile(elite_percentile), survival_percentile(survival_percentile), mutation_percentage(mutation_percentage), mutation_rate(mutation_rate), threads(min((unsigned) 4, threads)), testers(threads), thread_pool(threads) {
 		for(size_t i = 0; i < population_size; ++i) {
 			population.push_back(organism(inputs, i + 1));
 		}
+		for(auto &tester : testers) {
+			tester = &(*t);
+		}
 	}
 	void measure_fitness() {
-		for(auto &organism : population) {
-			t->test(organism);
+		if(threads == 1) {
+			for(auto &organism : population) {
+				testers[0]->test(organism);
+			}
+		}else {
+			thread_pool.clear();
+			size_t elements_per_thread = max(1UL, 1 + population.size() / threads);
+			size_t first = 0;
+			size_t last = min(population.size(), first + elements_per_thread);
+			size_t thread_num = 0;
+			while(first < population.size() && last <= population.size()) {
+				thread_pool.push_back(thread(&world::measure_fitness_async_range, this, ref(testers[thread_num]), first, last));
+				
+				first += elements_per_thread;
+				last = min(population.size(), first + elements_per_thread);
+				++thread_num;
+			}
+			for(auto &thread : thread_pool) {
+				thread.join();
+			}
 		}
 	}
 	void order_fitness() {
@@ -317,64 +202,89 @@ public:
 		}
 	}
 private:
+	void measure_fitness_async_range(tester *t, size_t start, size_t end) {
+		for(size_t i = start; i < end; ++i) {
+			t->test(population[i]);
+		}
+	}
 	double elite_percentile;
 	double survival_percentile;
 	double mutation_percentage;
 	double mutation_rate;
 	vector<organism> population;
-	tester *t;
+	unsigned threads;
+	vector<tester*> testers;
+	vector<thread> thread_pool;
+	friend class world_io;
+};
+
+class world_io {
+public:
+	world_io(world &w, const string &file_path) : w(w), file_path(file_path) {}
+	void save_all() {
+		thread(&world_io::save_all_async, this).join();
+	}
+private:
+	void save_all_async() {
+		ofstream file;
+		file.open(file_path, ios::app);
+		for(auto &organism : w.population) {
+			file << organism.id << ": " << "[";
+			for(size_t i = 0; i < organism.t.nodes.size(); ++i) {
+				auto &node = organism.t.nodes[i];
+				file << "(" << " : " << node.type << " : " << node.variation << ")" << (i < organism.t.nodes.size() - 1 ? ", " : "");
+			}
+			file << "], Fitness: " << organism.fitness;
+			file << endl;
+		}
+		file << endl;
+		file.close();
+	}
+	string file_path;
+	world &w;
 };
 
 int main() {
-    //srand(time(0));
-	srand(13123);
-	
-	const size_t POPULATION_SIZE = 1000;
-    const size_t INPUTS = 6;
-	const double ELITE_PERCENTILE = .01;
-	const double SURVIVAL_PERCENTILE = .3;
-	const double MUTATION_PERCENTAGE = .7;
-	const double MUTATION_RATE = .09;
+	auto seed = rand();
+	cout << "Seed: " << seed << "." << endl << endl;
+    srand(seed);
 	
 	vector<double> prices;
-	
 	const string file_path = "intel_data.txt";
 	ifstream data_file(file_path.c_str());
 	while(data_file.good()) {
 		prices.push_back(0);
 		data_file >> prices.back();
 	}
+	data_file.close();
 	
-	/*
-	//const string file_path = "IBM_adjusted_shortened.txt";
-	const string file_path = "IBM_adjusted.txt";
-	const size_t COLUMNS = 7;
-	const size_t SELECTED_COLUMN = 3;
-	ifstream data_file(file_path.c_str());
-	string line;
-	while(data_file.good()) {
-		for(unsigned i = 0; i < COLUMNS; ++i) {
-			if(i == COLUMNS - 1) { continue; }
-			getline(data_file, line, ',');
-			if((i % (COLUMNS - 1)) - (SELECTED_COLUMN - 1) == 0) {
-				string::size_type sz;
-				prices.push_back(stof(line, &sz));
-			}
-		}
-	}
-	prices.erase(prices.end() - 1);
-	 */
+	const size_t POPULATION_SIZE = 1000;
+    const size_t INPUTS = 6;
+	const double ELITE_PERCENTILE = .03;
+	const double SURVIVAL_PERCENTILE = .4;
+	const double MUTATION_PERCENTAGE = .7;
+	const double MUTATION_RATE = .07;
+	const unsigned THREADS = 4;
+	
+	auto start_time = time(nullptr);
+	stringstream st;
+	st << put_time(localtime(&start_time), "%F_%T");
+	auto start_time_string = st.str();
+	replace(start_time_string.begin(), start_time_string.end(), ':', '-');
+	const string output_file = st.str() + ".txt";
 	
 	//tester *t = new price_prediction_tester(prices);
 	//tester *t = new ichimoku_prediction_tester(prices);
 	tester *t = new rsi_purchase_tester(prices);
-	world w(POPULATION_SIZE, INPUTS, ELITE_PERCENTILE, SURVIVAL_PERCENTILE, MUTATION_PERCENTAGE, MUTATION_RATE, t);
+	world w(POPULATION_SIZE, INPUTS, ELITE_PERCENTILE, SURVIVAL_PERCENTILE, MUTATION_PERCENTAGE, MUTATION_RATE, THREADS, t);
+	world_io io(w, output_file);
 	vector<organism> organisms;
-	const unsigned ITERATIONS = 20;
+	const unsigned ITERATIONS = 100;
 	for(unsigned i = 0; i < ITERATIONS; ++i) {
 		w.measure_fitness();
 		w.order_fitness();
 		w.get_organisms(organisms);
+		io.save_all();
 		cout << "Generation " << i + 1 << " complete." << endl;
 		cout << "Current Lowest Fitness:  Organism: " << organisms.front().id << ", Fitness: " << organisms.front().fitness << "." << endl;
 		cout << "Current Highest Fitness: Organism: " << organisms.back().id << ", Fitness: " << organisms.back().fitness << "." << endl;
