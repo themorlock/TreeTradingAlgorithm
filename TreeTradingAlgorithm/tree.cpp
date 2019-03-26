@@ -14,6 +14,7 @@ tree::tree(size_t inputs) : inputs(inputs), nodes((inputs * (inputs + 1)) / 2) {
     for(size_t i = 0; i < nodes.size(); ++i) {
         node::setType(nodes[i], rand());
         node::setVariation(nodes[i], rand());
+		nodes[i].id = i;
         nodes[i].parents[0] = i - (size_t) ceil((-1 + sqrt(1 + 8 * (i + 1))) / 2);
         nodes[i].parents[1] = i - 1;
     }

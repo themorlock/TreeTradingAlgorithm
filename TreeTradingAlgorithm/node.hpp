@@ -14,6 +14,7 @@
 struct node {
     static void setType(node &n, unsigned type);
     static void setVariation(node &n, unsigned variation);
+	size_t id;
     unsigned type;
     unsigned variation;
     double value;

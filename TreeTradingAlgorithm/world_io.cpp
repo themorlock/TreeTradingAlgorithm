@@ -30,18 +30,6 @@ void world_io::save_all_async() {
 		file << organism.id << ": " << output << ", Fitness = " << organism.fitness << "." << endl;
 	}
 	file << endl;
-    /*
-    for(auto &organism : w.population) {
-        file << organism.id << ": " << "[";
-        for(size_t i = 0; i < organism.t.nodes.size(); ++i) {
-            auto &node = organism.t.nodes[i];
-            file << "(" << node.type << " : " << node.variation << ")" << (i < organism.t.nodes.size() - 1 ? ", " : "");
-        }
-        file << "], Fitness: " << organism.fitness;
-        file << endl;
-    }
-    file << endl;
-    */
     file.close();
 }
 
@@ -49,7 +37,7 @@ void world_io::save_all_async_helper(string &output, tree &t, node &n) {
 	if(n.type <= 1) {
 		switch(n.type) {
 			case 0:
-				output += type_to_symbol(n.type);
+				output += "(" + type_to_symbol(n.type) + to_string(n.id) + ")";
 				break;
 			case 1:
 				output += to_string(n.variation);
