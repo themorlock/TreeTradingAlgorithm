@@ -11,6 +11,8 @@
 		80F0764D2248FA060025F07E /* node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80F0764B2248FA060025F07E /* node.cpp */; };
 		80F076502248FB0B0025F07E /* tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80F0764E2248FB0B0025F07E /* tree.cpp */; };
 		80F076532248FCEB0025F07E /* organism.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80F076512248FCEB0025F07E /* organism.cpp */; };
+		80F076562249A53D0025F07E /* world.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80F076542249A53D0025F07E /* world.cpp */; };
+		80F0765C2249A7290025F07E /* world_io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80F0765A2249A7290025F07E /* world_io.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,12 +30,17 @@
 /* Begin PBXFileReference section */
 		80F0764122431CBC0025F07E /* TreeTradingAlgorithm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TreeTradingAlgorithm; sourceTree = BUILT_PRODUCTS_DIR; };
 		80F0764422431CBC0025F07E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; usesTabs = 1; };
-		80F0764B2248FA060025F07E /* node.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = node.cpp; sourceTree = "<group>"; };
-		80F0764C2248FA060025F07E /* node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = node.hpp; sourceTree = "<group>"; };
-		80F0764E2248FB0B0025F07E /* tree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tree.cpp; sourceTree = "<group>"; };
-		80F0764F2248FB0B0025F07E /* tree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tree.hpp; sourceTree = "<group>"; };
-		80F076512248FCEB0025F07E /* organism.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = organism.cpp; sourceTree = "<group>"; };
-		80F076522248FCEB0025F07E /* organism.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = organism.hpp; sourceTree = "<group>"; };
+		80F0764B2248FA060025F07E /* node.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = node.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F0764C2248FA060025F07E /* node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = node.hpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F0764E2248FB0B0025F07E /* tree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tree.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F0764F2248FB0B0025F07E /* tree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tree.hpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F076512248FCEB0025F07E /* organism.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = organism.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F076522248FCEB0025F07E /* organism.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = organism.hpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F076542249A53D0025F07E /* world.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = world.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F076552249A53D0025F07E /* world.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = world.hpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F076582249A6080025F07E /* tester.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tester.hpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F0765A2249A7290025F07E /* world_io.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = world_io.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		80F0765B2249A7290025F07E /* world_io.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = world_io.hpp; sourceTree = "<group>"; usesTabs = 1; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +79,11 @@
 				80F0764F2248FB0B0025F07E /* tree.hpp */,
 				80F076512248FCEB0025F07E /* organism.cpp */,
 				80F076522248FCEB0025F07E /* organism.hpp */,
+				80F076542249A53D0025F07E /* world.cpp */,
+				80F076552249A53D0025F07E /* world.hpp */,
+				80F0765A2249A7290025F07E /* world_io.cpp */,
+				80F0765B2249A7290025F07E /* world_io.hpp */,
+				80F076582249A6080025F07E /* tester.hpp */,
 				80F0764422431CBC0025F07E /* main.cpp */,
 			);
 			path = TreeTradingAlgorithm;
@@ -135,8 +147,10 @@
 			files = (
 				80F0764522431CBC0025F07E /* main.cpp in Sources */,
 				80F076532248FCEB0025F07E /* organism.cpp in Sources */,
+				80F0765C2249A7290025F07E /* world_io.cpp in Sources */,
 				80F0764D2248FA060025F07E /* node.cpp in Sources */,
 				80F076502248FB0B0025F07E /* tree.cpp in Sources */,
+				80F076562249A53D0025F07E /* world.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,8 +9,6 @@
 #ifndef organism_hpp
 #define organism_hpp
 
-#include <stdio.h>
-
 #include "tree.hpp"
 
 struct organism {

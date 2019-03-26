@@ -9,7 +9,7 @@
 #ifndef node_hpp
 #define node_hpp
 
-#include <stdio.h>
+#include <cstdlib>
 
 struct node {
     static void setType(node &n, unsigned type);

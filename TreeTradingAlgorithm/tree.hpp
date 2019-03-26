@@ -9,7 +9,6 @@
 #ifndef tree_hpp
 #define tree_hpp
 
-#include <stdio.h>
 #include <vector>
 
 #include "node.hpp"
