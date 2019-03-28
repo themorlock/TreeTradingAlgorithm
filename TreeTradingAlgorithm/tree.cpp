@@ -41,7 +41,7 @@ double tree::combine_inputs(const node &n, const vector<node> &nodes) {
             return n.value;
             break;
         case 1: // CONSTANT
-            return n.variation;
+            return n.value;
             break;
         case 2: //COSINE
             return cos(nodes[n.parents[n.variation]].value);

@@ -8,7 +8,7 @@
 
 #include "world.hpp"
 
-world::world(size_t population_size, size_t inputs, double elite_percentile, double survival_percentile, double mutation_percentage, double mutation_rate, unsigned threads, tester *t) : elite_percentile(elite_percentile), survival_percentile(survival_percentile), mutation_percentage(mutation_percentage), mutation_rate(mutation_rate), threads(min((unsigned) 4, threads)), testers(threads), thread_pool(threads) {
+world::world(size_t population_size, size_t inputs, double elite_percentile, double survival_percentile, double mutation_percentage, double mutation_rate, unsigned threads, tester *t) : elite_percentile(elite_percentile), survival_percentile(survival_percentile), mutation_percentage(mutation_percentage), mutation_rate(mutation_rate), threads(min((unsigned) 4, threads)), testers(this->threads), thread_pool(this->threads) {
     for(size_t i = 0; i < population_size; ++i) {
         population.push_back(organism(inputs, i + 1));
     }
