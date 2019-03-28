@@ -8,7 +8,7 @@
 
 #include "world.hpp"
 
-world::world(size_t population_size, size_t inputs, double elite_percentile, double survival_percentile, double mutation_percentage, double mutation_rate, unsigned threads, tester *t) : elite_percentile(elite_percentile), survival_percentile(survival_percentile), mutation_percentage(mutation_percentage), mutation_rate(mutation_rate), threads(min((unsigned) 4, threads)), testers(this->threads), thread_pool(this->threads) {
+world::world(size_t population_size, size_t inputs, double elite_percentile, double survival_percentile, double mutation_percentage, double mutation_rate, unsigned threads, tester *t) : elite_percentile(elite_percentile), survival_percentile(survival_percentile), mutation_percentage(mutation_percentage), mutation_rate(mutation_rate), threads((threads == 0 ? thread::hardware_concurrency() : min(thread::hardware_concurrency(), threads))), testers(this->threads), thread_pool(this->threads) {
     for(size_t i = 0; i < population_size; ++i) {
         population.push_back(organism(inputs, i + 1));
     }
@@ -18,7 +18,7 @@ world::world(size_t population_size, size_t inputs, double elite_percentile, dou
 }
 
 void world::measure_fitness() {
-    if(threads == 1) {
+    if(threads <= 1) {
         for(auto &organism : population) {
             testers[0]->test(organism);
         }
@@ -51,9 +51,11 @@ void world::get_organisms(vector<organism> &organisms) {
 
 void world::reproduce() {
     for(size_t i = 0; i < population.size() * (1.0 - survival_percentile); ++i) {
+		organism &organism_a = population[rand() % (size_t) (population.size() * survival_percentile) + population.size() * (1.0 - survival_percentile)];
+		organism &organism_b = population[rand() % (size_t) (population.size() * elite_percentile) + population.size() * (1.0 - elite_percentile)];
         for(size_t j = 0; j < population[i].t.nodes.size(); ++j) {
-            node &a = population[rand() % (size_t) (population.size() * survival_percentile) + population.size() * (1.0 - survival_percentile)].t.nodes[j];
-            node &b = population[rand() % (size_t) (population.size() * elite_percentile) + population.size() * (1.0 - elite_percentile)].t.nodes[j];
+            node &a = organism_a.t.nodes[j];
+            node &b = organism_b.t.nodes[j];
             node &c = population[i].t.nodes[j];
             switch(rand() % 2) {
                 case 0:
@@ -77,22 +79,35 @@ void world::reproduce() {
 
 void world::mutate() {
     for(size_t i = 0; i < population.size() * mutation_percentage; ++i) {
-        for(auto &node : population[i].t.nodes) {
-            if(node.type != 0 && (rand() / RAND_MAX) < mutation_rate) {
-                switch (rand() % 3) {
+        for(auto &n : population[i].t.nodes) {
+            if(n.type != 0 && (rand() / RAND_MAX) < mutation_rate) {
+                switch (rand() % 5) {
                     case 0:
-                        node::setType(node, rand());
-                        node::setVariation(node, rand());
+                        node::setType(n, rand());
+                        node::setVariation(n, rand());
                         break;
                     case 1:
-                        node::setType(node, rand());
+                        node::setType(n, rand());
                         break;
                     case 2:
-                        node::setVariation(node, rand());
+                        node::setVariation(n, rand());
                         break;
                 }
             }
         }
+		if((rand() / RAND_MAX) < mutation_rate) {
+			node *new_node = new node();
+			switch(rand() % 2) {
+				case 0:
+					node::setType(*new_node, rand());
+					node::setVariation(*new_node, rand());
+					population[i].t.addNode(new_node);
+					break;
+				case 1:
+					population[i].t.deleteNode();
+					break;
+			}
+		}
     }
 }
 

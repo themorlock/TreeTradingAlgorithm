@@ -20,6 +20,8 @@ struct tree {
     void set_input(size_t input_num, double value);
     double out();
     static double combine_inputs(const node &n, const vector<node> &nodes);
+	void addNode(node *new_node);
+	void deleteNode();
     size_t inputs;
     vector<node> nodes;
 };

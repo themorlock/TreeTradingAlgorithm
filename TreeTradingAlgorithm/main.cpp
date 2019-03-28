@@ -28,14 +28,15 @@ using namespace std;
  
 int main() {
 	const size_t POPULATION_SIZE = 1000;
-    const size_t INPUTS = 5;
+    const size_t INPUTS = 10;
 	const double ELITE_PERCENTILE = .03;
 	const double SURVIVAL_PERCENTILE = .4;
 	const double MUTATION_PERCENTAGE = .7;
 	const double MUTATION_RATE = .07;
-	const unsigned THREADS = 4;
+	const unsigned THREADS = 0;
 	
-	const string data_file_path = "intel_data.txt";
+	//const string data_file_path = "intel_data.csv";
+	const string data_file_path = "apple_data.csv";
 	rsi_optimization_tester::set_data(data_file_path);
 	tester *t = new rsi_optimization_tester();
 	

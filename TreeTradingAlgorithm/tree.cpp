@@ -82,3 +82,28 @@ double tree::combine_inputs(const node &n, const vector<node> &nodes) {
     }
     return -1;
 }
+
+void tree::addNode(node *new_node) {
+	if(nodes.size() == ((inputs) * (inputs + 1)) / 2) {
+		new_node->type = 0;
+		new_node->variation = 0;
+		new_node->value = 0;
+		++inputs;
+	}
+	nodes.push_back(*new_node);
+}
+
+void tree::deleteNode() {
+	if(nodes.size() - 1 == ((inputs) * (inputs + 1)) / 2) {
+		--inputs;
+	}
+	nodes.erase(nodes.end() - 1);
+}
+
+/*
+
+1, 2, 4, 7, 11, 16, 22
+0, 1, 3, 6, 10, 15, 21
+1, 2, 3, 4,  5,  6,  7
+
+*/

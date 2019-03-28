@@ -36,7 +36,7 @@ void world_io::save_all_async() {
 	for(auto &organism : w.population) {
 		string output = "";
 		save_all_async_helper(output, organism.t, organism.t.nodes.back());
-		file << organism.id << ": " << output << ", Fitness = " << organism.fitness << "." << endl;
+		file << organism.id << ": " << output << ", Genome Length = " << organism.t.nodes.size() << ", Fitness = " << organism.fitness << "." << endl;
 	}
 	file << endl;
     file.close();
@@ -46,7 +46,7 @@ void world_io::save_all_async_helper(string &output, tree &t, node &n) {
 	if(n.type <= 1) {
 		switch(n.type) {
 			case 0:
-				output += "(" + type_to_symbol(n.type) + ")";
+				output += type_to_symbol(n.type);
 				break;
 			case 1:
 				output += to_string(n.value);
