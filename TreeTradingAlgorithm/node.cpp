@@ -18,7 +18,7 @@ void node::setVariation(node &n, unsigned variation) {
 		n.variation = 0;
 	else if(n.type == 1) {
 		variation %= RAND_MAX;
-		n.value = (rand() % 2 ? -1.0 : 1.0) * (double) variation / (double) RAND_MAX;//(double) (rand() % 2 ? RAND_MAX : 1);
+		n.value = (rand() % 2 ? -1.0 : 1.0) * (double) variation / (double) RAND_MAX;
 	}else
         n.variation = variation % 2;
 }

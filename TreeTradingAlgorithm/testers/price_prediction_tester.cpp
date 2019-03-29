@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <limits>
+#include <cmath>
 
 #include "price_prediction_tester.hpp"
 
@@ -28,8 +29,8 @@ void price_prediction_tester::test(organism &o) {
     double error = 0;
     for(size_t i = 0; i < prices->size() - 1; ++i) {
         vector<double> inputs(o.t.inputs);
-        for(auto &i : inputs) {
-            i = (*prices)[i];
+        for(auto &input : inputs) {
+            input = (*prices)[i];
         }
         o.set_inputs(inputs);
         
@@ -41,8 +42,7 @@ void price_prediction_tester::test(organism &o) {
         double expected = (*prices)[i + 1];
         error += (output > expected ? output - expected : expected - output);
     }
-    
-    double fitness = (error > 0.0 ? (1.0 / error) : numeric_limits<double>::max());
+    double fitness = (error != 0.0 ? (1.0 / error) : numeric_limits<double>::max());
     o.fitness = fitness;
 }
 

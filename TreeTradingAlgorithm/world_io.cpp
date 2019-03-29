@@ -30,19 +30,34 @@ void world_io::save_all() {
     thread(&world_io::save_all_async, this).detach();
 }
 
+void world_io::save_best() {
+	thread(&world_io::save_best_async, this).detach();
+}
+
 void world_io::save_all_async() {
     ofstream file;
     file.open(output_file_path, ios::app);
 	for(auto &organism : w.population) {
 		string output = "";
-		save_all_async_helper(output, organism.t, organism.t.nodes.back());
+		save_async_helper(output, organism.t, organism.t.nodes.back());
 		file << organism.id << ": " << output << ", Genome Length = " << organism.t.nodes.size() << ", Fitness = " << organism.fitness << "." << endl;
 	}
 	file << endl;
     file.close();
 }
 
-void world_io::save_all_async_helper(string &output, tree &t, node &n) {
+void world_io::save_best_async() {
+	ofstream file;
+	file.open(output_file_path, ios::app);
+	auto &organism = w.population.back();
+	string output = "";
+	save_async_helper(output, organism.t, organism.t.nodes.back());
+	file << organism.id << ": " << output << ", Genome Length = " << organism.t.nodes.size() << ", Fitness = " << organism.fitness << "." << endl;
+	file << endl;
+	file.close();
+}
+
+void world_io::save_async_helper(string &output, tree &t, node &n) {
 	if(n.type <= 1) {
 		switch(n.type) {
 			case 0:
@@ -54,13 +69,15 @@ void world_io::save_all_async_helper(string &output, tree &t, node &n) {
 		}
 	}else if(n.type <= 6) {
 		output += type_to_symbol(n.type) + "(";
-		save_all_async_helper(output, t, t.nodes[n.parents[n.variation]]);
+		save_async_helper(output, t, t.nodes[n.parents[n.variation]]);
 		output += ")";
 	}else if(n.type <= 11) {
 		output += "(";
-		save_all_async_helper(output, t, t.nodes[n.parents[n.variation]]);
+		save_async_helper(output, t, t.nodes[n.parents[n.variation]]);
+		output += ")";
 		output += type_to_symbol(n.type);
-		save_all_async_helper(output, t, t.nodes[n.parents[n.variation ^ 1]]);
+		output += "(";
+		save_async_helper(output, t, t.nodes[n.parents[n.variation ^ 1]]);
 		output += ")";
 	}
 	

@@ -29,7 +29,7 @@ using namespace std;
  
 int main() {
 	const size_t POPULATION_SIZE = 1000;
-    const size_t INPUTS = 30;
+    const size_t INPUTS = 4;
 	const double ELITE_PERCENTILE = .02;
 	const double SURVIVAL_PERCENTILE = .45;
 	const double MUTATION_PERCENTAGE = .55;
@@ -42,7 +42,6 @@ int main() {
 	tester *t = new rsi_optimization_tester();
 	*/
 	
-	cout << "Max Double: " << numeric_limits<double>::max() << "." << endl;
 	const string data_file_path = "intel_data_normalized.txt";
 	price_prediction_tester::set_data(data_file_path);
 	tester *t = new price_prediction_tester();
@@ -53,7 +52,8 @@ int main() {
 	for(unsigned i = 0; i < ITERATIONS; ++i) {
 		w.measure_fitness();
 		w.order_fitness();
-		io.save_all();
+		//io.save_all();
+		io.save_best();
 		if(i < ITERATIONS - 1) {
 			w.reproduce();
 			w.mutate();

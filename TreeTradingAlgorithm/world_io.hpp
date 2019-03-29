@@ -17,9 +17,11 @@ class world_io {
 public:
     world_io(world &w);
     void save_all();
+	void save_best();
 private:
     void save_all_async();
-	void save_all_async_helper(string &output, tree &t, node &n);
+	void save_best_async();
+	void save_async_helper(string &output, tree &t, node &n);
 	string type_to_symbol(unsigned type);
     string output_file_path;
     world &w;
