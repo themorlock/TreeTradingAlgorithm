@@ -7,6 +7,7 @@
 //
 
 #include <fstream>
+#include <limits>
 
 #include "rsi_optimization_tester.hpp"
 
@@ -21,7 +22,7 @@ void rsi_optimization_tester::set_data(const string &data_file_path) {
 }
 
 void rsi_optimization_tester::test(organism &o) {
-    const size_t RSI_PERIOD = 14;
+    const size_t RSI_PERIOD = 13;
     
     double money_balance = 1;
     double stock_balance = 1 / (*prices)[RSI_PERIOD];
@@ -40,13 +41,13 @@ void rsi_optimization_tester::test(organism &o) {
     average_gain /= average_gain_count;
     average_loss /= average_loss_count;
     
-    double original_net_worth = money_balance + stock_balance * (*prices)[14];
+    double original_net_worth = money_balance + stock_balance * (*prices)[RSI_PERIOD];
     
     for(size_t i = RSI_PERIOD; i < prices->size(); ++i) {
         double rsi = 100.0 - 100.0 / (1.0 + (average_gain / average_loss));
         double normalized_rsi = rsi / 100.0;
-        average_gain = ((average_gain * 13.0) + ((*prices)[i] > (*prices)[i - 1] ? (*prices)[i] - (*prices)[i - 1] : 0)) / 14.0;
-        average_loss = ((average_loss * 13.0) + ((*prices)[i] < (*prices)[i - 1] ? (*prices)[i - 1] - (*prices)[i] : 0)) / 14.0;
+        average_gain = ((average_gain * (double) (RSI_PERIOD - 1)) + ((*prices)[i] > (*prices)[i - 1] ? (*prices)[i] - (*prices)[i - 1] : 0)) / (double) RSI_PERIOD;
+        average_loss = ((average_loss * (double) (RSI_PERIOD - 1)) + ((*prices)[i] < (*prices)[i - 1] ? (*prices)[i - 1] - (*prices)[i] : 0)) / (double) RSI_PERIOD;
         
         vector<double> inputs(o.t.inputs);
         for(auto &i : inputs) {
@@ -55,13 +56,17 @@ void rsi_optimization_tester::test(organism &o) {
         o.set_inputs(inputs);
         
         double output = o.get_output();
+        if(output < -1.0 || output > 1.0) {
+            o.fitness = 0;
+            return;
+        }
         if(output < 0) {
-            double stock_sold = stock_balance * std::min(1.0, -output);
+            double stock_sold = stock_balance * (-output);
             
             stock_balance -= stock_sold;
             money_balance += stock_sold * (*prices)[i];
         }else {
-            double money_sold = money_balance * std::min(1.0, output);
+            double money_sold = money_balance * output;
             
             money_balance -= money_sold;
             stock_balance += money_sold / (*prices)[i];

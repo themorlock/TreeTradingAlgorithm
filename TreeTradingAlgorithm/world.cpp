@@ -53,24 +53,25 @@ void world::reproduce() {
     for(size_t i = 0; i < population.size() * (1.0 - survival_percentile); ++i) {
 		organism &organism_a = population[rand() % (size_t) (population.size() * survival_percentile) + population.size() * (1.0 - survival_percentile)];
 		organism &organism_b = population[rand() % (size_t) (population.size() * elite_percentile) + population.size() * (1.0 - elite_percentile)];
+		//size_t offspring_genome_size = (rand() % 2 ? organism_a.t.nodes.size() : organism_b.t.nodes.size());
         for(size_t j = 0; j < population[i].t.nodes.size(); ++j) {
             node &a = organism_a.t.nodes[j];
             node &b = organism_b.t.nodes[j];
-            node &c = population[i].t.nodes[j];
+			node *c = &population[i].t.nodes[j];
             switch(rand() % 2) {
                 case 0:
-                    c.type = a.type;
+                    c->type = a.type;
                     break;
                 case 1:
-                    c.type = b.type;
+                    c->type = b.type;
                     break;
             }
             switch(rand() % 2) {
                 case 0:
-                    node::setVariation(c, a.type);
+                    node::setVariation(*c, a.type);
                     break;
                 case 1:
-                    node::setVariation(c, b.type);
+                    node::setVariation(*c, b.type);
                     break;
             }
         }
@@ -80,7 +81,7 @@ void world::reproduce() {
 void world::mutate() {
     for(size_t i = 0; i < population.size() * mutation_percentage; ++i) {
         for(auto &n : population[i].t.nodes) {
-            if(n.type != 0 && (rand() / RAND_MAX) < mutation_rate) {
+            if(n.type != 0 && (rand() / (double) RAND_MAX) < mutation_rate) {
                 switch (rand() % 5) {
                     case 0:
                         node::setType(n, rand());
@@ -95,7 +96,8 @@ void world::mutate() {
                 }
             }
         }
-		if((rand() / RAND_MAX) < mutation_rate) {
+		/*
+		if((rand() / (double) RAND_MAX) < mutation_rate) {
 			node *new_node = new node();
 			switch(rand() % 2) {
 				case 0:
@@ -108,6 +110,7 @@ void world::mutate() {
 					break;
 			}
 		}
+		*/
     }
 }
 

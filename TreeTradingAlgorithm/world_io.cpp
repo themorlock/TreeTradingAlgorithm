@@ -27,7 +27,7 @@ world_io::world_io(world &w) : w(w) {
 }
 
 void world_io::save_all() {
-    thread(&world_io::save_all_async, this).join();
+    thread(&world_io::save_all_async, this).detach();
 }
 
 void world_io::save_all_async() {

@@ -90,6 +90,8 @@ void tree::addNode(node *new_node) {
 		new_node->value = 0;
 		++inputs;
 	}
+	new_node->parents[0] = nodes.size() - (size_t) ceil((-1 + sqrt(1 + 8 * (nodes.size() + 1))) / 2);
+	new_node->parents[1] = nodes.size() - 1;
 	nodes.push_back(*new_node);
 }
 
@@ -99,11 +101,3 @@ void tree::deleteNode() {
 	}
 	nodes.erase(nodes.end() - 1);
 }
-
-/*
-
-1, 2, 4, 7, 11, 16, 22
-0, 1, 3, 6, 10, 15, 21
-1, 2, 3, 4,  5,  6,  7
-
-*/

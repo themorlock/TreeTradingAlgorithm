@@ -23,22 +23,29 @@
 
 #include "testers/tester.hpp"
 #include "testers/rsi_optimization_tester.hpp"
+#include "testers/price_prediction_tester.hpp"
 
 using namespace std;
  
 int main() {
 	const size_t POPULATION_SIZE = 1000;
-    const size_t INPUTS = 10;
-	const double ELITE_PERCENTILE = .03;
-	const double SURVIVAL_PERCENTILE = .4;
-	const double MUTATION_PERCENTAGE = .7;
-	const double MUTATION_RATE = .07;
+    const size_t INPUTS = 30;
+	const double ELITE_PERCENTILE = .02;
+	const double SURVIVAL_PERCENTILE = .45;
+	const double MUTATION_PERCENTAGE = .55;
+	const double MUTATION_RATE = .09;
 	const unsigned THREADS = 0;
 	
-	//const string data_file_path = "intel_data.csv";
+	/*
 	const string data_file_path = "apple_data.csv";
 	rsi_optimization_tester::set_data(data_file_path);
 	tester *t = new rsi_optimization_tester();
+	*/
+	
+	cout << "Max Double: " << numeric_limits<double>::max() << "." << endl;
+	const string data_file_path = "intel_data_normalized.txt";
+	price_prediction_tester::set_data(data_file_path);
+	tester *t = new price_prediction_tester();
 	
 	world w(POPULATION_SIZE, INPUTS, ELITE_PERCENTILE, SURVIVAL_PERCENTILE, MUTATION_PERCENTAGE, MUTATION_RATE, THREADS, t);
 	world_io io(w);
